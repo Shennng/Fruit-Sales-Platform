@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fruitsalesplatform.mapper.UserMapper">
+    <resultMap id="userRM" type="user">
+        <id property="userid" column="userid"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="telephone" column="telephone"/>
+    </resultMap>
+    <select id="get" parameterType="string" resultMap="userRM">
+        SELECT * FROM user where userid=#{userid};
+    </select>
+    <select id="find" parameterType="map" resultMap="userRM">
+        select * from user
+        where 1=1
+        <if test="username!=null">and username=#{username}</if>
+        <if test="password!=null">and password=#{password}</if>
+        <if test="name!=null">and name=#{name}</if>
+        <if test="telephone!=null">and telephone=#{telephone}</if>
+    </select>
+    <insert id="insert" parameterType="user">
+        insert into user (userid, username, password, name, telephone)
+        values (
+                #{userid,jdbcType=VARCHAR},
+                #{username,jdbcType=VARCHAR},
+                #{password,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},
+                #{telephone,jdbcType=VARCHAR}
+               );
+    </insert>
+    <update id="update" parameterType="user">
+        update user
+        <set>
+            <if test="password!=null">password=#{password,jdbcType=VARCHAR}</if>
+            <if test="name!=null">name=#{name,jdbcType=VARCHAR}</if>
+            <if test="telephone!=null">telephone=#{telephone,jdbcType=VARCHAR}</if>
+        </set>
+        where userid=#{userid};
+    </update>
+    <delete id="deleteById" parameterType="string">
+        delete from user
+        where userid=#{userid}
+    </delete>
+    <delete id="delete" parameterType="string">
+        delete from user
+        where userid in
+        <foreach collection="array" item="userid" open="(" close= ")" separator=",">
+            #{userid}
+        </foreach>
+    </delete>
+</mapper>

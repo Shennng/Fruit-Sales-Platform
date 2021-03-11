@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fruitsalesplatform.mapper.AccessoryMapper">
+    <resultMap id="AccessoryRM" type="accessory">
+        <id column="accessoryid" property="accessoryId" jdbcType="VARCHAR"/>
+        <result column="fruitid" property="fruitId" jdbcType="VARCHAR"/>
+        <result column="name" property="name"/>
+        <result column="price" property="price" jdbcType="DOUBLE"/>
+        <result column="createtime" property="createTime"/>
+    </resultMap>
+    <select id="get" parameterType="string" resultMap="AccessoryRM">
+        select * from accessory where accessoryid=#{accessoryId}
+    </select>
+    <select id="find" parameterType="map" resultMap="AccessoryRM">
+        select * from accessory
+        where 1=1
+        <if test="fruitId!=null">and fruitid=#{fruitId}</if>
+    </select>
+    <insert id="insert" parameterType="accessory">
+        insert into accessory (accessoryid, fruitid, name, price, createtime)
+        VALUES (
+                #{accessoryId,jdbcType=VARCHAR},
+                #{fruitId,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},
+                #{price,jdbcType=DOUBLE},
+                #{createTime,jdbcType=VARCHAR}
+               )
+    </insert>
+    <update id="update" parameterType="accessory">
+        update accessory
+        <set>
+            <if test="name!=null">name=#{name},</if>
+            <if test="price!=null">price=#{price},</if>
+            <if test="fruitId!=null">fruitid=#{fruitId}</if>
+        </set>
+        where accessoryid = #{accessoryId}
+    </update>
+    <delete id="deleteById" parameterType="string">
+        delete from accessory where accessoryid=#{accressoryId}
+    </delete>
+    <delete id="delete" parameterType="java.util.List">
+        delete from accessory
+        where accessoryid in
+        <foreach collection="list" item="accessoryId" open="(" close=")" separator=",">
+            #{accessoryId}
+        </foreach>
+    </delete>
+    <delete id="deleteByFruitId" parameterType="string">
+        delete from accessory
+        where fruitid=#{fruitId}
+    </delete>
+</mapper>

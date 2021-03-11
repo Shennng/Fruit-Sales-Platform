@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fruitsalesplatform.mapper.RetailerMapper">
+    <resultMap id="retailerRM" type="retailer">
+        <id column="retailerid" property="retailerId" jdbcType="VARCHAR"/>
+        <result column="name" property="name"/>
+        <result column="telephone" property="telephone"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="createtime" property="createTime"/>
+    </resultMap>
+    <select id="get" parameterType="string" resultMap="retailerRM">
+        select * from retailer where retailerid=#{id};
+    </select>
+    <!--  SQL片段  -->
+    <sql id="query_retailer_where">
+        <if test="name!=null">and name like #{name}</if>
+        <if test="address!=null">and address like #{address}</if>
+        <if test="status!=null">and status = #{status}</if>
+        <if test="telephone!=null">and telephone like #{telephone}</if>
+        <if test="createTime!=null">
+            and createtime=DATE_FORMAT(#{createTime},'%Y-%m-%d %H:%i:%s')
+        </if>
+        <if test="startTime!=null">
+            <![CDATA[ and createtime >= DATE_FORMAT(#{startTime},'%Y-%m-%d %H:%i:%s')]]>
+        </if>
+        <if test="endTime!=null">
+            <![CDATA[ and createtime <= DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s')]]>
+        </if>
+    </sql>
+    <select id="find" parameterType="map" resultMap="retailerRM">
+        select * from retailer
+        where 1=1
+        <include refid="query_retailer_where"/>
+        <if test="startPage!=null and pageSize!=null">LIMIT #{startPage},#{pageSize}</if>
+    </select>
+    <select id="count" parameterType="map" resultType="java.lang.Integer">
+        select COUNT(*) from retailer
+        where 1=1
+        <include refid="query_retailer_where"/>
+    </select>
+    <insert id="insert" parameterType="retailer">
+        insert into retailer (retailerid, name, telephone, address, status, createtime)
+        values (
+                #{retailerId,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},
+                #{telephone,jdbcType=VARCHAR},
+                #{address,jdbcType=VARCHAR},
+                #{status,jdbcType=VARCHAR},
+                #{createTime,jdbcType=VARCHAR}
+               );
+    </insert>
+    <update id="update" parameterType="retailer">
+        update retailer
+        <set>
+            <if test="name != null">name=#{name},</if>
+            <if test="address != null">address=#{address},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="telephone != null">telephone = #{telephone}</if>
+        </set>
+        where retailerid=#{retailerId}
+    </update>
+    <delete id="deleteById" parameterType="string">
+        delete from retailer where retailerid=#{retailerId}
+    </delete>
+    <delete id="delete" parameterType="java.util.List">
+        delete from retailer
+        where retailerid in
+        <foreach separator="," open="(" close=")" item="retailerId" collection="list">
+            #{retailerId}
+        </foreach>
+    </delete>
+</mapper>

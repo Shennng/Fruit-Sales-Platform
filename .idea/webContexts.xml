@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebContextManager">
+    <option name="state">
+      <map>
+        <entry key="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/accessory/accessoryHome.jsp" value="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/accessory" />
+        <entry key="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/contract/addContract.jsp" value="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/contract" />
+        <entry key="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/contract/contractHome.jsp" value="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/contract" />
+        <entry key="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/contract/editContract.jsp" value="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/contract" />
+        <entry key="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/retailer/retailerHome.jsp" value="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/retailer" />
+        <entry key="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/test/test.jsp" value="file://$PROJECT_DIR$/src/main/web/WEB-INF/pages/test" />
+      </map>
+    </option>
+  </component>
+</project>

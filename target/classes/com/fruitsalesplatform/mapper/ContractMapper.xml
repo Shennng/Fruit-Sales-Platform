@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fruitsalesplatform.mapper.ContractMapper">
+    <resultMap id="ContractVoRM" type="contractVo">
+        <id column="contractid" property="contractId" jdbcType="VARCHAR"/>
+        <result column="retailer_name" property="retailerName" jdbcType="VARCHAR"/>
+        <result column="barcode" property="barCode" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="createtime" property="createTime"/>
+    </resultMap>
+    <resultMap id="ContractRM" type="contract">
+        <id column="contractid" property="contractId" jdbcType="VARCHAR"/>
+        <result column="barcode" property="barCode" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="createtime" property="createTime"/>
+        <!-- 一个合同关联一位零售商 -->
+        <association property="retailer" javaType="retailer">
+            <id column="retailerid" property="retailerId" jdbcType="VARCHAR"/>
+            <result column="retailer_name" property="name"/>
+            <result column="telephone" property="telephone"/>
+            <result column="address" property="address"/>
+        </association>
+        <!-- 一个合同包含多个品种的货物，货物数量不一 -->
+        <collection property="commoditiesList" ofType="commoditiesVo">
+            <id column="fruitid" property="fruitId" jdbcType="VARCHAR"/>
+            <result column="fruit_name" property="name"/>
+            <result column="price" property="price" jdbcType="DOUBLE"/>
+            <result column="locality" property="locality"/>
+            <result column="number" property="number"/>
+            <!-- 每个货物都有0到多个种类的附属品，无数量概念 -->
+            <collection property="accessoryList" ofType="accessory">
+                <result column="accessory_name" property="name"/>
+                <result column="accessory_price" property="price"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="get" parameterType="string" resultMap="ContractRM">
+        select t.contractid,t.barcode,t.createtime,t.type,
+               r.retailerid,r.name as retailer_name,r.telephone,r.address,
+               mdl.fruitid,mdl.fruit_name,mdl.price,mdl.locality,mdl.number,
+               mdl.accessory_name,mdl.accessory_price
+        from (
+             select c.fruitid,c.name as fruit_name,c.price,c.locality,m.number,
+                    a.name as accessory_name,a.price as accessory_price
+            from middle_tab m left join commodities c on m.fruitid = c.fruitid
+            left join accessory a on m.fruitid = a.fruitid
+            where m.contractid = #{contractId}
+                 ) mdl,contract t left join retailer r on t.retailerid = r.retailerid
+        where t.contractid = #{contractId}
+    </select>
+    <sql id="query_contract_where">
+        <if test="barCode!=null">and t.barcode = #{barCode}</if>
+        <if test="type!=null">and t.type = #{type}</if>
+        <if test="startTime != null">
+            <![CDATA[ and t.createtime >= DATE_FORMAT(#{startTime},'%Y-%m-%d %H:%i:%s')]]>
+        </if>
+        <if test="endTime != null">
+            <![CDATA[ and t.createtime <= DATE_FORMAT(#{endTime},'%Y-%m-%d %H:%i:%s')]]>
+        </if>
+    </sql>
+    <select id="findContractList" parameterType="map" resultMap="ContractVoRM">
+        select t.contractid,t.barcode,t.createtime,t.type,r.name as retailer_name
+        from contract t left join retailer r
+        on t.retailerid = r.retailerid
+        where 1=1
+        <include refid="query_contract_where"/>
+        <if test="retailerName!=null">and r.name like #{retailerName}</if>
+        <if test="startPage!=null and pageSize!=null">LIMIT #{startPage},#{pageSize}</if>
+    </select>
+    <select id="count" parameterType="map" resultType="integer">
+        select COUNT(*) from contract t, retailer r
+        where t.retailerid = r.retailerid
+        <include refid="query_contract_where"/>
+        <if test="retailerName!=null">and r.name like #{retailerName}</if>
+    </select>
+    <insert id="insert" parameterType="contract">
+        insert into contract (contractid, retailerid, barcode, type, createtime)
+        VALUES (
+                #{contractId,jdbcType=VARCHAR},
+                #{retailer.retailerId,jdbcType=VARCHAR},
+                #{barCode,jdbcType=VARCHAR},
+                #{type,jdbcType=INTEGER},
+                #{createTime,jdbcType=VARCHAR}
+               )
+    </insert>
+    <!-- 用于修改合同货物 -->
+    <insert id="insertMiddleTab" parameterType="middleTab">
+        insert into middle_tab (middleid, contractid, fruitid, number)
+        VALUES (
+                #{middleId,jdbcType=VARCHAR},
+                #{contractId,jdbcType=VARCHAR},
+                #{fruitId,jdbcType=VARCHAR},
+                #{number,jdbcType=INTEGER}
+               )
+    </insert>
+    <update id="update" parameterType="contract">
+        update contract
+        <set>
+            <!-- 合同表里只能修改零售商Id和合同类型 -->
+            <if test="retailer!=null and retailer.retailerId != null">retailerid=#{retailer.retailerId},</if>
+            <if test="type!=null">type=#{type}</if>
+        </set>
+        where contractid=#{contractId}
+    </update>
+    <!-- 修改某合同中的货物时，先清空合同中关联的所有货物信息，再重新insert -->
+    <delete id="deleteMiddleTab" parameterType="string">
+        delete from middle_tab
+        where contractid=#{contractId}
+    </delete>
+    <delete id="deleteById" parameterType="string">
+        delete from contract
+        where contractid=#{contractId}
+    </delete>
+    <!-- 获取递增最后一个的barcode，以组成“年月日 + 最后一个barcode+1”的contractId -->
+    <select id="getMaxBarCode" resultType="string">
+        select MAX(barcode)
+        from contract;
+    </select>
+</mapper>

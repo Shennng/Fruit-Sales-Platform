@@ -1,0 +1,27 @@
+@charset "utf-8";
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
+	padding:0;
+	margin:0;
+	font-family: "Microsoft YaHei", serif;
+	color: #000;
+}
+body{
+	background-color:#333333;
+}
+#content{
+	background-color:#FFFFFF;
+	width:350px;
+	height:350px;
+	margin:0 auto;
+	position:absolute;
+	left: 500px;
+	top: 120px;
+	border: 10px gray solid;
+}
+#form{
+	position:absolute;
+	width: 319px;
+	height: 139px;
+	left: 40px;
+	top: 90px;
+}
